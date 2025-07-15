@@ -1,4 +1,4 @@
 package tech.guinho.springsecurity.dto;
 
-public class LoginResponse {
+public record LoginResponse(String accessToken, Long expiresIn) {
 }
