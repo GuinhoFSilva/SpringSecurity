@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import tech.guinho.springsecurity.dto.LoginRequest;
 import tech.guinho.springsecurity.dto.LoginResponse;
+import tech.guinho.springsecurity.model.Role;
 import tech.guinho.springsecurity.model.User;
 import tech.guinho.springsecurity.repository.UserRepository;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 public class TokenController {
@@ -41,11 +43,17 @@ public class TokenController {
 
         var expiresIn = 300L;
 
+        var scopes = user.get().getRoles()
+                .stream()
+                .map(Role::getName)
+                .collect(Collectors.joining(" "));
+
         var claims = JwtClaimsSet.builder()
                 .issuer("guinho's backend")
                 .subject(user.get().getId().toString())
                 .expiresAt(now.plusSeconds(expiresIn))
                 .issuedAt(now)
+                .claim("scope", scopes)
                 .build();
 
         var jwtValue = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
